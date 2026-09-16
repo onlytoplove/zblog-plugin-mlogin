@@ -1,7 +1,9 @@
-一款限制登录才可访问站点的Z-blog插件
-——————所有代码全部由AI生成——————
-使用前请熟知可能潜在缺陷和风险
-详细功能看如下截图：
+一款限制登录才可访问站点的Z-blog插件  
+  
+——————所有代码全部由AI生成——————  
+使用前请熟知可能潜在缺陷和风险  
+  
+详细功能看如下截图：  
 
 <img width="1298" height="711" alt="1" src="https://github.com/user-attachments/assets/881b9a6b-1a3d-4eb9-a561-e75cc2316f6e" />
 <img width="1305" height="735" alt="2" src="https://github.com/user-attachments/assets/c8e00fc6-eb93-4935-8a20-edf0ab3a1925" />
