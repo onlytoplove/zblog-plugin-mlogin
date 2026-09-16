@@ -1,0 +1,523 @@
+/**
+ * mlogin 插件 - 后台样式表
+ * 从 main.php 内联样式提取，便于维护和主题定制
+ */
+
+/* ─── 基础布局 ─────────────────────────────────────────────── */
+.ml-wrapper {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px 0 60px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #374151;
+}
+
+.ml-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.03);
+    border: 1px solid #e5e7eb;
+    padding: 32px;
+    margin-bottom: 24px;
+}
+
+/* ─── Tab 导航 ─────────────────────────────────────────────── */
+.ml-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 1px;
+    flex-wrap: wrap;
+}
+
+.ml-tab {
+    padding: 12px 20px;
+    text-decoration: none;
+    color: #6b7280;
+    font-weight: 500;
+    font-size: 14px;
+    border-bottom: 2px solid transparent;
+    transition: all .2s;
+    margin-bottom: -1px;
+}
+
+.ml-tab:hover {
+    color: #2563eb;
+}
+
+.ml-tab.active {
+    color: #2563eb;
+    border-bottom-color: #2563eb;
+    font-weight: 600;
+}
+
+/* ─── 表单组件 ─────────────────────────────────────────────── */
+.ml-form-group {
+    margin-bottom: 28px;
+}
+
+.ml-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #111827;
+    font-size: 14px;
+}
+
+.ml-input,
+.ml-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color .15s, box-shadow .15s;
+    background: #fff;
+    box-sizing: border-box;
+    color: #1f2937;
+}
+
+.ml-textarea {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    line-height: 1.6;
+    resize: vertical;
+    min-height: 100px;
+}
+
+.ml-input:focus,
+.ml-textarea:focus {
+    border-color: #2563eb;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+}
+
+.ml-hint {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 8px;
+    display: block;
+    line-height: 1.5;
+}
+
+/* ─── 上传组件 ─────────────────────────────────────────────── */
+.ml-upload-row {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+}
+
+.ml-upload-row .ml-input {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+    background: #f9fafb;
+}
+
+.ml-upload-row .ml-btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    white-space: nowrap;
+}
+
+/* ─── 按钮 ─────────────────────────────────────────────────── */
+.ml-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all .2s;
+    text-decoration: none;
+    line-height: 1.5;
+}
+
+.ml-btn:active {
+    transform: translateY(1px);
+}
+
+.ml-btn-primary {
+    background: #2563eb;
+    color: #fff;
+}
+
+.ml-btn-primary:hover {
+    background: #1d4ed8;
+}
+
+.ml-btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border-color: #d1d5db;
+}
+
+.ml-btn-secondary:hover {
+    background: #e5e7eb;
+    border-color: #9ca3af;
+    color: #111827;
+}
+
+.ml-btn-danger {
+    background: #fee2e2;
+    color: #dc2626;
+    border-color: #fecaca;
+}
+
+.ml-btn-danger:hover {
+    background: #fecaca;
+    color: #b91c1c;
+}
+
+/* ─── 图片画廊 ─────────────────────────────────────────────── */
+.ml-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.ml-gallery-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid #e5e7eb;
+    transition: all .2s;
+    background: #f9fafb;
+}
+
+.ml-gallery-item:hover {
+    border-color: #2563eb;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,.1);
+}
+
+.ml-gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.ml-gallery-del {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 18px;
+    height: 18px;
+    background: rgba(0,0,0,.6);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity .2s;
+    cursor: pointer;
+}
+
+.ml-gallery-item:hover .ml-gallery-del {
+    opacity: 1;
+}
+
+.ml-gallery-del:hover {
+    background: #dc2626;
+}
+
+/* ─── 布局组件 ─────────────────────────────────────────────── */
+.ml-split-layout {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+}
+
+.ml-col-left {
+    flex: 1;
+    min-width: 0;
+}
+
+.ml-col-right {
+    flex: 0 0 55%;
+    position: sticky;
+    top: 20px;
+}
+
+/* ─── 预览组件 ─────────────────────────────────────────────── */
+.ml-preview-viewport {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    background: #e5e7eb;
+}
+
+.ml-preview-label {
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    z-index: 20;
+    font-size: 11px;
+    color: #6b7280;
+    background: rgba(255,255,255,.85);
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-weight: 500;
+    letter-spacing: .3px;
+    backdrop-filter: blur(4px);
+}
+
+.ml-preview-iframe-wrap {
+    width: 100%;
+    height: 600px;
+    overflow: hidden;
+}
+
+.ml-preview-iframe-wrap iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+/* ─── 备份组件 ─────────────────────────────────────────────── */
+.ml-backup-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.ml-backup-box {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+/* ─── 标题与分隔 ───────────────────────────────────────────── */
+.ml-section-head {
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ml-sub-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 16px;
+    padding-left: 10px;
+    border-left: 3px solid #2563eb;
+}
+
+.ml-divider {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin: 28px 0 24px;
+}
+
+/* ─── 提示与反馈 ───────────────────────────────────────────── */
+.ml-alert {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ml-alert-success {
+    background: #ecfdf5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
+}
+
+.ml-alert-error {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+/* ─── 开关与复选框 ─────────────────────────────────────────── */
+.ml-switch-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #f9fafb;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+}
+
+.ml-checkbox {
+    width: 16px;
+    height: 16px;
+    accent-color: #2563eb;
+    cursor: pointer;
+}
+
+/* ─── 日志组件 ─────────────────────────────────────────────── */
+.ml-log-box {
+    background: #1f2937;
+    color: #d1d5db;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    padding: 16px;
+    border-radius: 8px;
+    max-height: 500px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.ml-log-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.ml-stat-card {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+}
+
+.ml-stat-num {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.ml-stat-label {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+/* ─── 测试结果 ─────────────────────────────────────────────── */
+.ml-result-box {
+    padding: 16px;
+    border-radius: 8px;
+    margin-top: 16px;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.ml-result-allow {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #059669;
+}
+
+.ml-result-block {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+}
+
+.ml-result-login {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #d97706;
+}
+
+/* ─── 高级设置 ─────────────────────────────────────────────── */
+.ml-adv-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.ml-adv-box {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.ml-adv-box-full {
+    grid-column: 1 / -1;
+}
+
+/* ─── 下拉选择框 ─────────────────────────────────────────── */
+.ml-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    background: #fff;
+    color: #1f2937;
+    box-sizing: border-box;
+}
+
+.ml-select:focus {
+    border-color: #2563eb;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+}
+
+/* ─── 日志筛选器 ─────────────────────────────────────────── */
+.ml-log-filter {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.ml-log-filter .ml-form-group {
+    margin-bottom: 0;
+    flex: 1;
+    min-width: 120px;
+}
+
+/* ─── 徽章 ─────────────────────────────────────────────────── */
+.ml-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.ml-badge-new {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+/* ─── 响应式 ─────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+    .ml-split-layout {
+        flex-direction: column;
+    }
+
+    .ml-col-right {
+        width: 100%;
+        flex: none;
+        position: static;
+    }
+
+    .ml-backup-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ml-adv-grid {
+        grid-template-columns: 1fr;
+    }
+}
