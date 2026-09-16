@@ -466,17 +466,17 @@ $_mlogin_log_buffer = [];
 /**
  * 记录访问日志
  *
- * @param string $uri              请求 URI
- * @param string $ip               客户端 IP
- * @param string $action           ALLOWED / BLOCKED / REDIRECT
- * @param string $reason           原因描述
- * @param bool   $logOnlyBlocked   是否仅记录拦截日志
+ * @param string   $uri         请求 URI
+ * @param string   $ip          客户端 IP
+ * @param string   $action      BLOCKED / ALLOWED / REDIRECT
+ * @param string   $reason      原因描述
+ * @param string[] $logActions  需要记录的 action 类型列表，如 ['BLOCKED','REDIRECT']
  */
-function mlogin_log_access($uri, $ip, $action, $reason = '', $logOnlyBlocked = false)
+function mlogin_log_access($uri, $ip, $action, $reason = '', $logActions = ['BLOCKED'])
 {
     global $_mlogin_log_buffer;
 
-    if ($logOnlyBlocked && $action === 'ALLOWED') return;
+    if (!in_array($action, $logActions, true)) return;
 
     mlogin_ensure_log_protection();
 
@@ -871,7 +871,11 @@ function mlogin_CheckLogin($templateFile = null)
     // 拦截频率限制参数
     $interceptMax         = (int)($cfg->login_fail_max ?? 0);
     $interceptLockMinutes = max(1, (int)($cfg->login_fail_lock_minutes ?? 15));
-    $logOnlyBlocked       = (int)($cfg->log_only_blocked ?? 1) === 1;
+    // 构建日志记录类型列表（仅勾选的类型才记录）
+    $logActions = [];
+    if ((int)($cfg->log_blocked ?? 1) === 1)  $logActions[] = 'BLOCKED';
+    if ((int)($cfg->log_allowed ?? 0) === 1)  $logActions[] = 'ALLOWED';
+    if ((int)($cfg->log_redirect ?? 0) === 1) $logActions[] = 'REDIRECT';
 
     // 检查 IP 是否因拦截过多被锁定
     if ($interceptMax > 0 && mlogin_is_ip_locked($clientIP, $interceptMax, $interceptLockMinutes)) {
@@ -894,11 +898,11 @@ function mlogin_CheckLogin($templateFile = null)
 
     if ($timeGuestMode !== 0 && trim($timeRanges) !== '') {
         if (mlogin_in_time_range($timeRanges, $tzOffset)) {
-            mlogin_log_access($uri, $clientIP, 'ALLOWED', 'In time range (guest bypass)', $logOnlyBlocked);
+            mlogin_log_access($uri, $clientIP, 'ALLOWED', 'In time range (guest bypass)', $logActions);
             return $templateFile;
         }
         if ($timeGuestMode === 2) {
-            mlogin_log_access($uri, $clientIP, 'BLOCKED', 'Outside allowed time range');
+            mlogin_log_access($uri, $clientIP, 'BLOCKED', 'Outside allowed time range', $logActions);
             mlogin_show_403('Access is only allowed during specified hours.');
         }
     }
@@ -906,14 +910,14 @@ function mlogin_CheckLogin($templateFile = null)
     // ③ IP 黑名单
     $ipBlacklist = mlogin_parse_lines($cfg->ip_blacklist ?? '');
     if (!empty($ipBlacklist) && mlogin_ip_matches($clientIP, $ipBlacklist)) {
-        mlogin_log_access($uri, $clientIP, 'BLOCKED', 'IP Blacklist match');
+        mlogin_log_access($uri, $clientIP, 'BLOCKED', 'IP Blacklist match', $logActions);
         mlogin_show_403('Your IP has been blocked.');
     }
 
     // ④ IP 白名单
     $ipWhitelist = mlogin_parse_lines($cfg->ip_whitelist ?? '');
     if (!empty($ipWhitelist) && mlogin_ip_matches($clientIP, $ipWhitelist)) {
-        mlogin_log_access($uri, $clientIP, 'ALLOWED', 'IP Whitelist match', $logOnlyBlocked);
+        mlogin_log_access($uri, $clientIP, 'ALLOWED', 'IP Whitelist match', $logActions);
         return $templateFile;
     }
 
@@ -926,7 +930,7 @@ function mlogin_CheckLogin($templateFile = null)
         if (!empty($blacklist) && mlogin_uri_matches($uri, $blacklist)) {
             $blacklistLevels = $cfg->blacklist_levels ?? '';
             if ($userLevel === 0 || mlogin_level_enabled($userLevel, $blacklistLevels)) {
-                mlogin_log_access($uri, $clientIP, 'BLOCKED', 'URI Blacklist match (Level ' . $userLevel . ')');
+                mlogin_log_access($uri, $clientIP, 'BLOCKED', 'URI Blacklist match (Level ' . $userLevel . ')', $logActions);
                 mlogin_show_403('URI Blacklist match');
             }
         }
@@ -938,7 +942,7 @@ function mlogin_CheckLogin($templateFile = null)
         if (!empty($whitelist) && mlogin_uri_matches($uri, $whitelist)) {
             $whitelistLevels = $cfg->whitelist_levels ?? '';
             if ($userLevel === 0 || mlogin_level_enabled($userLevel, $whitelistLevels)) {
-                mlogin_log_access($uri, $clientIP, 'ALLOWED', 'URI Whitelist match (Level ' . $userLevel . ')', $logOnlyBlocked);
+                mlogin_log_access($uri, $clientIP, 'ALLOWED', 'URI Whitelist match (Level ' . $userLevel . ')', $logActions);
                 return $templateFile;
             }
         }
@@ -947,7 +951,7 @@ function mlogin_CheckLogin($templateFile = null)
     // ⑦ 分类/标签控制
     if ((int)($cfg->category_access_enabled ?? 0) === 1) {
         if (mlogin_check_category_access() && (int)$zbp->user->ID === 0) {
-            mlogin_log_access($uri, $clientIP, 'REDIRECT', 'Category/Tag requires login');
+            mlogin_log_access($uri, $clientIP, 'REDIRECT', 'Category/Tag requires login', $logActions);
             mlogin_show_custom_login_page($zbp->host . ltrim($uri, '/'));
         }
     }
@@ -960,12 +964,12 @@ function mlogin_CheckLogin($templateFile = null)
             if ($count > $interceptMax) {
                 $remaining = mlogin_get_lock_remaining($clientIP, $interceptLockMinutes);
                 mlogin_log_access($uri, $clientIP, 'BLOCKED',
-                    'Intercept rate limit exceeded (' . $count . '/' . $interceptMax . ')');
+                    'Intercept rate limit exceeded (' . $count . '/' . $interceptMax . ')', $logActions);
                 mlogin_show_403('访问频率过高，请在 ' . ceil($remaining / 60) . ' 分钟后再试。');
             }
         }
 
-        mlogin_log_access($uri, $clientIP, 'REDIRECT', 'Not logged in');
+        mlogin_log_access($uri, $clientIP, 'REDIRECT', 'Not logged in', $logActions);
         mlogin_show_custom_login_page($zbp->host . ltrim($uri, '/'));
     }
 
@@ -1006,7 +1010,9 @@ function InstallPlugin_mlogin()
         'timezone_offset'            => 8,
         'login_fail_max'             => 0,
         'login_fail_lock_minutes'    => 15,
-        'log_only_blocked'           => 1,
+        'log_blocked'               => 1,
+        'log_allowed'               => 0,
+        'log_redirect'              => 0,
         'category_access_enabled'    => 0,
         'require_login_categories'   => '',
         'require_login_tags'         => '',
@@ -1020,6 +1026,15 @@ function InstallPlugin_mlogin()
             $cfg->$key = $val;
             $changed = true;
         }
+    }
+
+    // 向后兼容：将旧版 log_only_blocked 迁移为新的三项配置
+    if (isset($cfg->log_only_blocked) && !isset($cfg->log_blocked)) {
+        $oldVal = (int)$cfg->log_only_blocked;
+        $cfg->log_blocked  = 1;                          // 始终记录拦截
+        $cfg->log_allowed  = ($oldVal === 0) ? 1 : 0;    // 旧版 0=全部记录
+        $cfg->log_redirect = ($oldVal === 0) ? 1 : 0;
+        $changed = true;
     }
 
     if ($changed) $zbp->SaveConfig('mlogin');

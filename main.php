@@ -3,12 +3,6 @@
  * mlogin 插件 - 后台配置页面
  *
  * 模块：基础规则、登录外观、规则测试、访问日志、数据备份、高级设置
- *
- * 重构说明：
- *   - CSS 提取到 assets/style.css
- *   - JavaScript 提取到 assets/app.js
- *   - AJAX 处理器集中管理
- *   - 视图层与逻辑层分离
  */
 
 // ─── 系统引导 ──────────────────────────────────────────────────
@@ -186,7 +180,8 @@ class MloginRouter
             'allowed_time_ranges', 'time_guest_mode',
             'login_bg', 'login_title', 'login_tip', 'auto_jump_seconds',
             'trust_proxy', 'extra_system_pass', 'timezone_offset',
-            'login_fail_max', 'login_fail_lock_minutes', 'log_only_blocked',
+            'login_fail_max', 'login_fail_lock_minutes',
+            'log_blocked', 'log_allowed', 'log_redirect',
             'category_access_enabled', 'require_login_categories', 'require_login_tags',
         ];
 
@@ -200,7 +195,8 @@ class MloginRouter
             'plugin_enabled', 'whitelist_enabled', 'blacklist_enabled',
             'time_guest_mode', 'auto_jump_seconds', 'trust_proxy',
             'timezone_offset', 'login_fail_max', 'login_fail_lock_minutes',
-            'log_only_blocked', 'category_access_enabled',
+            'log_blocked', 'log_allowed', 'log_redirect',
+            'category_access_enabled',
         ];
         foreach ($intFields as $field) {
             $data[$field] = (int)($data[$field] ?? 0);
@@ -391,7 +387,9 @@ class MloginRouter
             'timezoneOffset'     => (int)($cfg->timezone_offset ?? 8),
             'loginFailMax'       => (int)($cfg->login_fail_max ?? 0),
             'loginFailLock'      => (int)($cfg->login_fail_lock_minutes ?? 15),
-            'logOnlyBlocked'     => (int)($cfg->log_only_blocked ?? 1) === 1,
+            'logBlocked'         => (int)($cfg->log_blocked ?? 1) === 1,
+            'logAllowed'         => (int)($cfg->log_allowed ?? 0) === 1,
+            'logRedirect'        => (int)($cfg->log_redirect ?? 0) === 1,
             'catAccessEnabled'   => (int)($cfg->category_access_enabled ?? 0) === 1,
             'reqLoginCats'       => $cfg->require_login_categories ?? '',
             'reqLoginTags'       => $cfg->require_login_tags ?? '',
@@ -433,7 +431,9 @@ class MloginRouter
             'timezone_offset'           => (int)($cfg->timezone_offset ?? 8),
             'login_fail_max'            => (int)($cfg->login_fail_max ?? 0),
             'login_fail_lock_minutes'   => (int)($cfg->login_fail_lock_minutes ?? 15),
-            'log_only_blocked'          => (int)($cfg->log_only_blocked ?? 1),
+            'log_blocked'               => (int)($cfg->log_blocked ?? 1),
+            'log_allowed'               => (int)($cfg->log_allowed ?? 0),
+            'log_redirect'              => (int)($cfg->log_redirect ?? 0),
             'category_access_enabled'   => (int)($cfg->category_access_enabled ?? 0),
             'require_login_categories'  => $cfg->require_login_categories ?? '',
             'require_login_tags'        => $cfg->require_login_tags ?? '',
@@ -826,7 +826,9 @@ class MloginConfigSaver
         $cfg->login_fail_max = $this->clamp((int)($post['login_fail_max'] ?? 0), 0, 100);
         $cfg->login_fail_lock_minutes = $this->clamp((int)($post['login_fail_lock_minutes'] ?? 15), 1, 1440);
 
-        $cfg->log_only_blocked = $this->boolToInt($post, 'log_only_blocked');
+        $cfg->log_blocked  = $this->boolToInt($post, 'log_blocked');
+        $cfg->log_allowed  = $this->boolToInt($post, 'log_allowed');
+        $cfg->log_redirect = $this->boolToInt($post, 'log_redirect');
         $cfg->category_access_enabled = $this->boolToInt($post, 'category_access_enabled');
         $cfg->require_login_categories = mlogin_clean_lines($post['require_login_categories'] ?? '');
         $cfg->require_login_tags = mlogin_clean_lines($post['require_login_tags'] ?? '');
@@ -885,7 +887,9 @@ class MloginConfigSaver
         // 整数字段
         $intFields = [
             'trust_proxy', 'timezone_offset', 'login_fail_max',
-            'login_fail_lock_minutes', 'log_only_blocked', 'category_access_enabled',
+            'login_fail_lock_minutes',
+            'log_blocked', 'log_allowed', 'log_redirect',
+            'category_access_enabled',
         ];
         foreach ($intFields as $k) {
             if (isset($data[$k])) $cfg->$k = (int)$data[$k];
