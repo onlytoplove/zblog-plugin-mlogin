@@ -148,9 +148,138 @@
         <?php include __DIR__ . '/partials/access_logs.php'; ?>
     </div>
 
-    <!-- ==================== 高级设置 ==================== -->
+    <!-- ==================== 高级设置（内联） ==================== -->
     <div class="ml-card" style="display:<?= $activeTab === 'advanced' ? 'block' : 'none' ?>;">
-        <?php include __DIR__ . '/partials/advanced_settings.php'; ?>
+        <form method="post" action="">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+            <input type="hidden" name="current_tab" value="advanced">
+
+            <!-- 代理信任 -->
+            <div class="ml-form-group">
+                <label class="ml-label">🌐 反向代理信任</label>
+                <div class="ml-switch-group">
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:#374151;">
+                        <input type="checkbox" name="trust_proxy" value="1"
+                               class="ml-checkbox" <?= $trustProxy ? 'checked' : '' ?>>
+                        信任 X-Forwarded-For / X-Real-IP 头
+                    </label>
+                </div>
+                <span class="ml-hint">如果站点部署在 Nginx/CDN 反向代理后方，开启此项可获取访客真实 IP。仅在代理服务器可信时开启。</span>
+            </div>
+
+            <hr class="ml-divider">
+
+            <!-- 额外放行路径 -->
+            <div class="ml-form-group">
+                <label class="ml-label">🛤️ 额外放行路径</label>
+                <textarea name="extra_system_pass" class="ml-textarea" rows="4"
+                          placeholder="每行一个路径，例如：&#10;/api/webhook&#10;/custom/callback"><?= htmlspecialchars($extraSystemPass) ?></textarea>
+                <span class="ml-hint">这些路径将始终放行，不受其他规则约束。适用于 API 回调、Webhook 等场景。</span>
+            </div>
+
+            <hr class="ml-divider">
+
+            <!-- 时区偏移 -->
+            <div class="ml-form-group">
+                <label class="ml-label">🕐 时区偏移（UTC）</label>
+                <input type="number" name="timezone_offset" class="ml-input" style="width:80px;"
+                       value="<?= htmlspecialchars($timezoneOffset) ?>" min="-12" max="14">
+                <span class="ml-hint">当前偏移：UTC<?= $timezoneOffset >= 0 ? '+' : '' ?><?= $timezoneOffset ?>。用于时间段控制和日志时间戳。中国标准时间为 8。</span>
+            </div>
+
+            <hr class="ml-divider">
+
+            <!-- 登录失败锁定 -->
+            <div class="ml-sub-title">登录失败保护</div>
+            <div class="ml-split-layout">
+                <div class="ml-col-left">
+                    <div class="ml-form-group">
+                        <label class="ml-label">🔢 最大失败次数</label>
+                        <input type="number" name="login_fail_max" class="ml-input" style="width:80px;"
+                               value="<?= htmlspecialchars($loginFailMax) ?>" min="0" max="100">
+                        <span class="ml-hint">连续失败超过此次数后锁定 IP。设为 0 表示不启用。</span>
+                    </div>
+                </div>
+                <div class="ml-col-left">
+                    <div class="ml-form-group">
+                        <label class="ml-label">⏳ 锁定时长（分钟）</label>
+                        <input type="number" name="login_fail_lock_minutes" class="ml-input" style="width:80px;"
+                               value="<?= htmlspecialchars($loginFailLock) ?>" min="1" max="1440">
+                        <span class="ml-hint">IP 被锁定的持续时间，范围 1~1440 分钟。</span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="ml-divider">
+
+            <!-- ★ 日志记录类型（三个勾选框） ★ -->
+            <div class="ml-form-group">
+                <label class="ml-label">📝 日志写入设置</label>
+                <p class="ml-help" style="color:#6b7280;font-size:13px;margin:4px 0 8px;">勾选需要记录的访问类型，未勾选的类型不会写入日志文件。</p>
+                <div class="ml-log-checkbox-group">
+                    <label class="ml-log-checkbox">
+                        <input type="checkbox" name="log_blocked" value="1"
+                               <?= $logBlocked ? 'checked' : '' ?>>
+                        <span class="ml-log-checkbox-label">
+                            <span class="ml-log-badge ml-log-badge-blocked">已拦截</span>
+                            <small>BLOCKED</small>
+                        </span>
+                    </label>
+                    <label class="ml-log-checkbox">
+                        <input type="checkbox" name="log_allowed" value="1"
+                               <?= $logAllowed ? 'checked' : '' ?>>
+                        <span class="ml-log-checkbox-label">
+                            <span class="ml-log-badge ml-log-badge-allowed">已放行</span>
+                            <small>ALLOWED</small>
+                        </span>
+                    </label>
+                    <label class="ml-log-checkbox">
+                        <input type="checkbox" name="log_redirect" value="1"
+                               <?= $logRedirect ? 'checked' : '' ?>>
+                        <span class="ml-log-checkbox-label">
+                            <span class="ml-log-badge ml-log-badge-redirect">跳转登录</span>
+                            <small>REDIRECT</small>
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <hr class="ml-divider">
+
+            <!-- 分类/标签访问控制 -->
+            <div class="ml-sub-title">分类 / 标签访问控制</div>
+            <div class="ml-form-group">
+                <div class="ml-switch-group" style="margin-bottom:12px;">
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:#374151;">
+                        <input type="checkbox" name="category_access_enabled" value="1"
+                               class="ml-checkbox" <?= $catAccessEnabled ? 'checked' : '' ?>>
+                        启用分类/标签级别的访问控制
+                    </label>
+                </div>
+            </div>
+            <div class="ml-split-layout">
+                <div class="ml-col-left">
+                    <div class="ml-form-group">
+                        <label class="ml-label">📂 需要登录的分类</label>
+                        <textarea name="require_login_categories" class="ml-textarea" rows="4"
+                                  placeholder="每行一个分类名称或别名&#10;例如：&#10;private&#10;会员专区"><?= htmlspecialchars($reqLoginCats) ?></textarea>
+                        <span class="ml-hint">属于这些分类的文章页面需要登录后才能访问。</span>
+                    </div>
+                </div>
+                <div class="ml-col-left">
+                    <div class="ml-form-group">
+                        <label class="ml-label">🏷️ 需要登录的标签</label>
+                        <textarea name="require_login_tags" class="ml-textarea" rows="4"
+                                  placeholder="每行一个标签名称&#10;例如：&#10;付费内容&#10;内部资料"><?= htmlspecialchars($reqLoginTags) ?></textarea>
+                        <span class="ml-hint">带有这些标签的文章页面需要登录后才能访问。</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align:right;margin-top:16px;">
+                <button type="submit" class="ml-btn ml-btn-primary">💾 保存高级设置</button>
+            </div>
+        </form>
     </div>
 
     <!-- ==================== 数据备份 ==================== -->
@@ -159,6 +288,70 @@
     </div>
 
 </div>
+
+<!-- 日志勾选框样式 -->
+<style>
+.ml-log-checkbox-group {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+}
+.ml-log-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+    padding: 8px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #f9fafb;
+    transition: all 0.15s ease;
+}
+.ml-log-checkbox:hover {
+    border-color: #9ca3af;
+    background: #f3f4f6;
+}
+.ml-log-checkbox:has(input:checked) {
+    border-color: #6366f1;
+    background: #eef2ff;
+}
+.ml-log-checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #6366f1;
+}
+.ml-log-checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.ml-log-badge {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+.ml-log-badge-blocked {
+    background: #fef2f2;
+    color: #dc2626;
+}
+.ml-log-badge-allowed {
+    background: #ecfdf5;
+    color: #059669;
+}
+.ml-log-badge-redirect {
+    background: #eff6ff;
+    color: #2563eb;
+}
+.ml-log-checkbox small {
+    color: #9ca3af;
+    font-size: 11px;
+    font-family: monospace;
+}
+</style>
 
 <!-- 注入前端配置 -->
 <script>
